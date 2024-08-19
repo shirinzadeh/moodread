@@ -17,4 +17,7 @@ export default defineNuxtConfig({
     }
   
   },
+  runtimeConfig:{
+    openaiSecret: process.env.NUXT_OPENAI_API_KEY
+  }
 })

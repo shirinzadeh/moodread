@@ -1,8 +1,11 @@
 import OpenAI from 'openai';
 
 export default defineEventHandler(async (event) => {
+    const config = useRuntimeConfig(event)
+    console.log('config', config)
+
     const openai = new OpenAI({
-        apiKey: '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',
+        apiKey: config.openaiSecret,
     });
     const body = await readBody(event);
     const { title, author, description } = body;
