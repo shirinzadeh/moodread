@@ -1,72 +1,109 @@
 <template>
-  <div class="container mx-auto p-4 bg-gray-900 text-white min-h-screen">
-    <h1 class="text-3xl font-bold mb-4">My Library</h1>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Saved Books</h1>
 
-    <div v-if="loading" class="text-gray-400">Loading your saved books...</div>
-    <div v-if="error" class="text-red-400">{{ error }}</div>
+    <div v-if="pending" class="text-center">
+      <UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8 mx-auto" />
+      <p>Loading your saved books...</p>
+    </div>
 
-    <ul v-if="savedBooks.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <li
-        v-for="book in savedBooks"
-        :key="book.id"
-        class="bg-gray-800 p-4 rounded-md shadow hover:shadow-lg transition"
-      >
-        <h3 class="text-xl font-semibold mb-2">{{ book.title }}</h3>
-        <p class="text-gray-400 mb-2">{{ book.author }}</p>
-        <p class="text-gray-500 mb-4">{{ book.genre }}</p>
-        <button
-          @click="viewBookDetails(book)"
-          class="bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700"
-        >
-          View Details
-        </button>
-        <button
-          @click="removeBook(book.id)"
-          class="bg-red-600 text-white py-2 px-4 mt-2 rounded-md shadow hover:bg-red-700"
-        >
-          Remove from Library
-        </button>
-      </li>
-    </ul>
-    <p v-if="!loading && !savedBooks.length" class="text-gray-400">No books in your library yet.</p>
+    <div v-else-if="books.length === 0" class="text-center">
+      <p>You haven't saved any books yet.</p>
+    </div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <UCard v-for="book in books" :key="book.id" class="flex flex-col">
+        <template #header>
+          <h3 class="text-lg font-semibold">{{ book.title }}</h3>
+        </template>
+        <p>By {{ book.author }}</p>
+        <template #footer>
+          <div class="flex justify-between">
+            <UButton @click="openDetailModal(book)" color="cyan" size="sm">
+              View Details
+            </UButton>
+            <UButton @click="openDeleteDialog(book)" color="red" size="sm">
+              Delete
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </div>
+
+    <!-- Detail Modal -->
+    <UModal v-model="isDetailModalOpen">
+      <UCard v-if="selectedBook">
+        <template #header>
+          <h3 class="text-xl font-bold">{{ selectedBook.title }}</h3>
+        </template>
+        <div>
+          <p><strong>Author:</strong> {{ selectedBook.author }}</p>
+          <div v-if="selectedBook.other_details">
+            <h3 class="font-semibold mt-4 mb-2">Additional Details:</h3>
+            <p v-for="category in JSON.parse(selectedBook.other_details).categories"><strong>Category:</strong> {{ category }}</p>
+            <p><strong>Publisher:</strong> {{ JSON.parse(selectedBook.other_details).publisher }}</p>
+            <p><strong>Published date:</strong> {{ JSON.parse(selectedBook.other_details).publishedDate }}</p>
+            <p><strong>Page count:</strong> {{ JSON.parse(selectedBook.other_details).pageCount }}</p>
+            <p><strong>Description:</strong> {{ JSON.parse(selectedBook.other_details).description }}</p>
+
+          </div>
+        </div>
+      </UCard>
+    </UModal>
+
+    <!-- Delete Confirmation Dialog -->
+    <UModal v-model="isDeleteDialogOpen">
+      <UCard>
+        <p>Are you sure you want to delete "{{ selectedBook?.title }}"?</p>
+        <template #footer>
+          <div class="flex justify-end space-x-4">
+            <UButton @click="isDeleteDialogOpen = false" color="gray" variant="solid">
+              Cancel
+            </UButton>
+            <UButton @click="deleteBook" color="red">
+              Delete
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
 <script setup>
-definePageMeta({
-  middleware: 'auth'
+
+const supabase = useSupabaseClient()
+
+const isDetailModalOpen = ref(false)
+const isDeleteDialogOpen = ref(false)
+const selectedBook = ref(null)
+
+const bookDetails = computed(() => {
+  if (selectedBook.other_details) return
 })
 
-const router = useRouter();
+// Initial server-side fetch
+const { data: books, pending, refresh } = await useFetch('/api/saved-books')
 
-const { data: savedBooks, error, refresh } = await useAsyncData('savedBooks', async () => {
-    const response = await $fetch('/api/books/get');
-    console.log(response, 'response')
-    
-    showError('Error fetching books: ' + error.message);
-});
+const openDetailModal = (book) => {
+  selectedBook.value = book
+  isDetailModalOpen.value = true
+}
 
-const loading = ref(!savedBooks.value && !error.value);
+const openDeleteDialog = (book) => {
+  selectedBook.value = book
+  isDeleteDialogOpen.value = true
+}
 
-const viewBookDetails = (book) => {
-  showInfo(`Title: ${book.title}\nAuthor: ${book.author}`);
-};
+const deleteBook = async () => {
+  const { error } = await supabase
+    .from('books')
+    .delete()
+    .eq('id', selectedBook.value.id)
 
-const removeBook = async (bookId) => {
-  try {
-    await $fetch('/api/books/delete', {
-      method: 'POST',
-      body: { bookId },
-    });
+  error && showToastError(error?.message || 'Failed to delete book')
+  await refresh() // Refresh the book list after deletion
+  isDeleteDialogOpen.value = false
 
-    showSuccess('Book removed from your library!');
-    refresh(); // Refresh the data after removal
-  } catch (err) {
-    showError('Error removing book: ' + err.message);
-  }
-};
+}
 </script>
-
-<style>
-/* Add any custom styles here if needed */
-</style>
