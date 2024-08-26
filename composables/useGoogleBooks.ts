@@ -15,7 +15,6 @@ interface GoogleBooksAPIResponse {
 
 export function useGoogleBooks() {
   const books = ref<Book[]>([]);
-  const error = ref<string | null>(null);
   const loading = ref<boolean>(false);
 
   const fetchBooks = async (query: string) => {
@@ -29,11 +28,7 @@ export function useGoogleBooks() {
       });
       books.value = response.items || [];
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        error.value = err.message;
-      } else {
-        error.value = 'An unknown error occurred';
-      }
+      showToastError('Error occured')
     } finally {
       loading.value = false;
     }
@@ -41,7 +36,6 @@ export function useGoogleBooks() {
 
   return {
     books,
-    error,
     loading,
     fetchBooks,
   };

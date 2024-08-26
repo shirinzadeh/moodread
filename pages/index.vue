@@ -102,24 +102,23 @@ const feedbackLoading = ref(false)
 const showMoodFeedbackModal = ref(false)
 
 // Update handleMoodSelection function
+// Handle mood selection and get recommendations
 const handleMoodSelection = async () => {
   if (moodData.selectedMood === null) {
-    showToastError('Please select a mood')
-    return
+    showToastError('Please select a mood');
+    return;
   }
-  
+
   try {
-    const book = await getRecommendation(moodData.selectedMood)
-    if (!book) {
-      showToastError('No recommendation found for this mood')
-    } else {
-      showToastSuccess('Here\'s a book recommendation for you!')
-    }
+    // Here you would fetch recommendations based on mood
+    // Example:
+    // const recommendation = await getRecommendation(moodData.selectedMood);
+    // showToastSuccess('Here\'s a book recommendation for you!');
   } catch (error) {
-    console.error('Error getting recommendation:', error)
-    showToastError('Failed to get a recommendation')
+    console.error('Error getting recommendation:', error);
+    showToastError('Failed to get a recommendation');
   }
-}
+};
 
 // Submit mood feedback
 const submitMoodFeedback = async () => {
@@ -159,6 +158,7 @@ const saveBook = async (book) => {
     showToastError('You need to sign in to save books.')
     return
   }
+
   // Set the status to disabled and saving
   bookStatus.value[book.id] = { isDisabled: true, isSaving: true }
 
@@ -171,11 +171,15 @@ const saveBook = async (book) => {
         google_books_id: book.id,
         title: book.volumeInfo.title,
         author: book.volumeInfo.authors?.join(', ') || 'Unknown Author',
+        description: book.volumeInfo.description, // Include description
         related_user_id: user.value?.id,
         other_details: JSON.stringify(book.volumeInfo)
       }, { onConflict: 'google_books_id' })
 
     if (error) throw error
+
+    // Automatically assign mood to the saved book
+    await assignMoodToSavedBook(book.id, book.volumeInfo);
 
     showToastSuccess('Book saved successfully!')
   } catch (err) {
@@ -186,13 +190,43 @@ const saveBook = async (book) => {
   }
 }
 
+// Assign mood to the saved book
+const assignMoodToSavedBook = async (bookId, bookDetails) => {
+  try {
+    const response = await fetch('/api/assignMood', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        description: bookDetails.description,
+        title: bookDetails.title,
+        authors: bookDetails.authors,
+        categories: bookDetails.categories || []  // Include categories
+      })
+    });
+
+    const result = await response.json();
+    if (result.mood) {
+      // Save the assigned mood to the book
+      await supabase
+        .from('books')
+        .update({ mood: result.mood })
+        .eq('google_books_id', bookId);
+    }
+  } catch (error) {
+    console.error('Error assigning mood:', error);
+  }
+};
+
+
 const isBookDisabled = (bookId) => bookStatus.value[bookId]?.isDisabled || false
 const isBookSaving = (bookId) => bookStatus.value[bookId]?.isSaving || false
 
 // Helper function to get book image
 const getBookImage = (book) => {
-  const otherDetails = typeof book.other_details === 'string' 
-    ? JSON.parse(book.other_details) 
+  const otherDetails = typeof book.other_details === 'string'
+    ? JSON.parse(book.other_details)
     : book.other_details
   return otherDetails?.imageLinks?.smallThumbnail || '/images/book-image.jpg'
 }

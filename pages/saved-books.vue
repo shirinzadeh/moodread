@@ -58,10 +58,10 @@
         <template #footer>
           <div class="flex justify-end space-x-4">
             <UButton @click="isDeleteDialogOpen = false" color="gray" variant="solid">
-              Cancel
+              No
             </UButton>
             <UButton @click="deleteBook" color="red">
-              Delete
+              Yes
             </UButton>
           </div>
         </template>
@@ -102,8 +102,8 @@ const deleteBook = async () => {
     .eq('id', selectedBook.value.id)
 
   error && showToastError(error?.message || 'Failed to delete book')
-  await refresh() // Refresh the book list after deletion
   isDeleteDialogOpen.value = false
+  await refresh() // Refresh the book list after deletion
 
 }
 </script>

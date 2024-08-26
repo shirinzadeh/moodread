@@ -23,6 +23,9 @@ importers:
       openai:
         specifier: ^4.55.4
         version: 4.55.4
+      sentiment:
+        specifier: ^5.0.2
+        version: 5.0.2
       vue:
         specifier: latest
         version: 3.4.37
@@ -3270,6 +3273,10 @@ packages:
   send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
     engines: {node: '>= 0.8.0'}
+
+  sentiment@5.0.2:
+    resolution: {integrity: sha512-ZeC3y0JsOYTdwujt5uOd7ILJNilbgFzUtg/LEG4wUv43LayFNLZ28ec8+Su+h3saHlJmIwYxBzfDHHZuiMA15g==}
+    engines: {node: '>=8.0'}
 
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
@@ -7602,6 +7609,8 @@ snapshots:
       statuses: 2.0.1
     transitivePeerDependencies:
       - supports-color
+
+  sentiment@5.0.2: {}
 
   serialize-javascript@6.0.2:
     dependencies:
