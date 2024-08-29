@@ -1,5 +1,5 @@
 <template>
-	<div class="bg-gray-900 text-white min-h-screen flex flex-col">
+	<div class=" text-white min-h-screen flex flex-col">
 		<!-- Header -->
 		<SharedHeader />
 

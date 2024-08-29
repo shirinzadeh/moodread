@@ -1,141 +1,106 @@
 <template>
-	<div class="container mx-auto px-4 py-8">
-		<h1 class="text-3xl font-bold mb-6">
-			Book Explorer
-		</h1>
+	<div>
+		<div class="container mx-auto px-4 py-12">
+			<h1 class="text-4xl font-bold mb-8 text-center text-emerald-400">
+				Book Explorer
+			</h1>
 
-		<!-- Mood Selection -->
-		<UForm
-			:state="moodData"
-			class="mb-6"
-			@submit="handleMoodSelection"
-		>
-			<UFormGroup label="Select Your Mood" name="mood">
-				<USelect
-					v-model="moodData.selectedMood"
-					:options="moods"
-					option-attribute="mood_name"
-					value-attribute="id"
-					placeholder="Choose your mood"
-				/>
-			</UFormGroup>
-			<UButton
-				type="submit"
-				color="primary"
-				:loading="moodLoading"
-			>
-				Get Recommendation
-			</UButton>
-		</UForm>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+				<SharedCard :header-title="'Find a Book for Your Mood'">
+					<MoodSelector
+						:moods="moods"
+						:loading="moodLoading"
+						@select-mood="handleMoodSelection"
+					/>
+				</SharedCard>
 
-		<!-- Book Recommendation -->
-		<div v-if="recommendedBook" class="mt-8">
-			<h2 class="text-2xl font-semibold mb-4">
-				Recommended Book
-			</h2>
-			<UCard class="flex flex-col">
-				<template #header>
-					<h3 class="text-lg font-semibold">
-						{{ recommendedBook.title }}
-					</h3>
-				</template>
-				<NuxtImg
-					:src="getBookImage(recommendedBook)"
-					:alt="recommendedBook.title"
-					class="max-h-[200px] mx-auto"
-				/>
-				<template #footer>
-					<p>By {{ recommendedBook.author }}</p>
-					<UButton
-						color="green"
-						size="sm"
-						class="mt-2"
-						@click="showMoodFeedbackModal = true"
+				<!-- Book Search -->
+				<SharedCard :header-title="'Search a book'">
+					<BookSearch
+						v-model="formData.searchQuery"
+						:loading="searchLoading"
+						:handle-search="handleSearch"
+						@search="handleSearchInput"
+					/>
+				</SharedCard>
+			</div>
+
+			<!-- Mood-based Saved Books Section -->
+			<div v-if="selectedMood" class="mb-12">
+				<h2 class="text-2xl font-semibold mb-4 text-blue-500">
+					Books for {{ selectedMood.mood_name }} Mood
+				</h2>
+				<div v-if="loadingSavedBooks" class="text-center py-4">
+					<UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8 mx-auto text-emerald-600" />
+					<p class="mt-2 text-emerald-600">
+						Loading books...
+					</p>
+				</div>
+				<div v-else-if="savedBooks.length === 0" class="text-center py-4 bg-white rounded-lg shadow">
+					<p class="text-emerald-600">
+						No books found for this mood.
+					</p>
+				</div>
+				<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+					<UCard
+						v-for="book in savedBooks"
+						:key="book.id"
+						class="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
 					>
-						Share Your Mood After Reading
-					</UButton>
-				</template>
-			</UCard>
+						<template #header>
+							<h3 class="text-lg font-semibold text-blue-200 truncate">
+								{{ book.title }}
+							</h3>
+						</template>
+						<div class="flex flex-col items-center py-4">
+							<img
+								:src="getBookImage(book)"
+								:alt="book.title"
+								class="w-32 h-48 object-cover rounded-md shadow-sm mb-4"
+							>
+							<p class="text-gray-600 text-sm">
+								By {{ book.author }}
+							</p>
+						</div>
+						<template #footer>
+							<UButton
+								color="cyan"
+								variant="soft"
+								class="w-full"
+								@click="viewBookDetails(book)"
+							>
+								View Details
+							</UButton>
+						</template>
+					</UCard>
+				</div>
+			</div>
+
+			<!-- Book Recommendation -->
+			<BookRecommendation
+				v-if="recommendedBook"
+				:book="recommendedBook"
+				@feedback="showMoodFeedbackModal = true"
+			/>
+
+			<!-- Search Results -->
+			<BookSearchResult
+				:books="books"
+				:loading="searchLoading"
+				:search-query="formData.searchQuery"
+				:is-book-disabled="isBookDisabled"
+				:is-book-saving="isBookSaving"
+				@save-book="saveBook"
+			/>
 		</div>
 
 		<!-- Mood Feedback Modal -->
-		<UModal v-model="showMoodFeedbackModal">
-			<UCard>
-				<template #header>
-					<h3 class="text-lg font-semibold">
-						Share Your Mood After Reading
-					</h3>
-				</template>
-				<UForm :state="feedbackData" @submit="submitMoodFeedback">
-					<UFormGroup label="Your Mood" name="mood">
-						<USelect
-							v-model="feedbackData.mood"
-							:options="moods"
-							option-attribute="mood_name"
-						/>
-					</UFormGroup>
-					<UFormGroup label="Feedback" name="feedback">
-						<UTextarea v-model="feedbackData.feedback" placeholder="Share your thoughts..." />
-					</UFormGroup>
-					<UButton
-						type="submit"
-						color="primary"
-						:loading="feedbackLoading"
-					>
-						Submit Feedback
-					</UButton>
-				</UForm>
-			</UCard>
-		</UModal>
-
-		<BookSearch
-			:form-data="formData"
-			:loading="searchLoading"
-			:handle-search="handleSearch"
+		<ModalFeedback
+			v-model="showMoodFeedbackModal"
+			:moods="moods"
+			:loading="feedbackLoading"
+			@submit="submitMoodFeedback"
 		/>
-
-		<div v-if="books.length" class="mt-8">
-			<h2 class="text-2xl font-semibold mb-4">
-				Search Results
-			</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				<UCard
-					v-for="(book) in books"
-					:key="book.id"
-					class="flex flex-col"
-				>
-					<template #header>
-						<h3 class="text-lg font-semibold">
-							{{ book.volumeInfo.title }}
-						</h3>
-					</template>
-					<NuxtImg
-						:src="book.volumeInfo.imageLinks?.smallThumbnail || '/images/book-image.jpg'"
-						:alt="book.volumeInfo.title"
-						class="max-h-[200px] mx-auto"
-					/>
-
-					<template #footer>
-						<p>By {{ book.volumeInfo.authors?.join(', ') || 'Unknown Author' }}</p>
-
-						<UButton
-							color="blue"
-							size="sm"
-							class="mt-2"
-							:disabled="isBookDisabled(book.id)"
-							:loading="isBookSaving(book.id)"
-							@click="() => saveBook(book)"
-						>
-							Save Book
-						</UButton>
-					</template>
-				</UCard>
-			</div>
-		</div>
-
-		<div v-else-if="!searchLoading && formData.searchQuery" class="mt-8 text-center">
-			No books found. Try a different search query.
-		</div>
 	</div>
 </template>
 
@@ -146,9 +111,9 @@ const supabase = useSupabaseClient();
 const { moods, recommendedBook, loading: moodLoading, fetchMoods, submitFeedback } = useMoodRecommendation();
 
 const bookStatus = ref({});
-const moodData = reactive({
-	selectedMood: null,
-});
+// const moodData = reactive({
+// 	selectedMood: null,
+// });
 const feedbackData = reactive({
 	mood: null,
 	feedback: '',
@@ -156,46 +121,62 @@ const feedbackData = reactive({
 const feedbackLoading = ref(false);
 const showMoodFeedbackModal = ref(false);
 
-const formData = reactive({
+const formData = ref({
 	searchQuery: '',
 });
+
 const handleSearch = () => {
-	if (formData.searchQuery.trim()) {
-		fetchBooks(formData.searchQuery);
+	if (formData.value.searchQuery.trim()) {
+		fetchBooks(formData.value.searchQuery);
 	}
 };
 
-// Debounce function to delay API calls while typing
+const handleSearchInput = (value) => {
+	if (value.trim()) {
+		fetchBooks(value);
+	}
+};
+
+// Debounce the search input
 let debounceTimeout;
-watch(formData, (newData) => {
+watch(() => formData.value.searchQuery, (newQuery) => {
 	clearTimeout(debounceTimeout);
 	debounceTimeout = setTimeout(() => {
-		const trimmedQuery = newData?.searchQuery?.trim();
-
-		// Check if the search query is not empty and does not contain only spaces
-		if (trimmedQuery) {
-			fetchBooks(trimmedQuery);
+		if (newQuery.trim()) {
+			fetchBooks(newQuery);
 		}
-	}, 100); // 200ms delay
+	}, 300); // 300ms delay
 });
 
+const selectedMood = ref(null);
+const savedBooks = ref([]);
+const loadingSavedBooks = ref(false);
+
 // Update handleMoodSelection function
-// Handle mood selection and get recommendations
-const handleMoodSelection = async () => {
-	if (moodData.selectedMood === null) {
+const handleMoodSelection = async (mood) => {
+	if (!mood) {
 		showToastError('Please select a mood');
 		return;
 	}
 
+	selectedMood.value = mood;
+	loadingSavedBooks.value = true;
+
 	try {
-		// Here you would fetch recommendations based on mood
-		// Example:
-		// const recommendation = await getRecommendation(moodData.selectedMood);
-		// showToastSuccess('Here\'s a book recommendation for you!');
+		const { data, error } = await supabase
+			.from('books')
+			.select('*')
+			.eq('mood_id', mood.id)
+			.eq('related_user_id', user.value.id);
+
+		if (error) throw error;
+		savedBooks.value = data;
 	}
 	catch (error) {
-		console.error('Error getting recommendation:', error);
-		showToastError('Failed to get a recommendation');
+		showToastError(error?.message || 'Failed to fetch books for the selected mood');
+	}
+	finally {
+		loadingSavedBooks.value = false;
 	}
 };
 
@@ -271,7 +252,7 @@ const saveBook = async (book) => {
 // Assign mood to the saved book
 const assignMoodToSavedBook = async (bookId, bookDetails) => {
 	try {
-		const response = await fetch('/api/assignMood', {
+		const response = await $fetch('/api/assignMood', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -284,29 +265,31 @@ const assignMoodToSavedBook = async (bookId, bookDetails) => {
 			}),
 		});
 
-		const result = await response.json();
-		if (result.mood) {
+		console.log('response', response);
+
+		const mood = response?.mood;
+		if (mood) {
 			// Save the assigned mood to the book
 			await supabase
 				.from('books')
-				.update({ mood: result.mood })
+				.update({ mood_id: mood.id })
 				.eq('google_books_id', bookId);
 		}
 	}
 	catch (error) {
 		console.error('Error assigning mood:', error);
+		showToastError(error?.message);
 	}
 };
 
 const isBookDisabled = bookId => bookStatus.value[bookId]?.isDisabled || false;
 const isBookSaving = bookId => bookStatus.value[bookId]?.isSaving || false;
 
-// Helper function to get book image
 const getBookImage = (book) => {
 	const otherDetails = typeof book.other_details === 'string'
 		? JSON.parse(book.other_details)
 		: book.other_details;
-	return otherDetails?.imageLinks?.smallThumbnail || '/images/book-image.jpg';
+	return otherDetails?.imageLinks?.thumbnail || '/images/book-placeholder.jpg';
 };
 
 // Fetch moods when the component is mounted
