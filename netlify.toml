@@ -1,7 +1,7 @@
 [build]
-  command = "npm run build"
+  command = "pnpm run build"
   publish = ".output/public"
-  environment = { NODE_VERSION = "18" }
+  environment = { NODE_VERSION = "20" }
 
 [[redirects]]
   from = "/*"
