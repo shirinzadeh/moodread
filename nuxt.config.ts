@@ -16,6 +16,7 @@ export default defineNuxtConfig({
 
 	// Nuxt 3 build optimizations
 	nitro: {
+		preset: 'netlify',
 		prerender: {
 			crawlLinks: true,
 			routes: ['/'],
