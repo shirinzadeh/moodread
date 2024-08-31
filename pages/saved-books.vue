@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto px-4">
+	<div>
 		<h1 class="text-4xl font-bold mb-8 text-center text-emerald-400">
 			Saved Books
 		</h1>
@@ -19,7 +19,7 @@
 
 		<div
 			v-else-if="books.length === 0"
-			class="text-center py-12 bg-white rounded-lg shadow-md"
+			class="text-center py-12 rounded-lg shadow-md"
 		>
 			<UIcon
 				name="i-heroicons-book-open"
@@ -43,17 +43,22 @@
 				v-for="book in books"
 				:key="book.id"
 				class="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+				:ui="{
+					footer: {
+						base: 'mt-auto',
+					},
+				}"
 			>
 				<template #header>
-					<h3 class="text-xl font-semibold text-emerald-200 truncate">
+					<h3 class="text-md sm:text-xl font-semibold text-emerald-200 truncate">
 						{{ book.title }}
 					</h3>
 				</template>
-				<p class="mb-4">
+				<p class="text-sm sm:text-base ">
 					By {{ book.author }}
 				</p>
 				<template #footer>
-					<div class="flex justify-between">
+					<div class="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-between">
 						<UButton
 							color="cyan"
 							variant="soft"

@@ -12,6 +12,6 @@ defineProps({
 })
 
 const bookImage = computed(() => {
-  return book.value.volumeInfo.imageLinks?.smallThumbnail || '/images/book-image.jpg'
+  return book.value.volumeInfo.imageLinks?.smallThumbnail || '/images/book-placeholder.jpg'
 })
 </script> -->

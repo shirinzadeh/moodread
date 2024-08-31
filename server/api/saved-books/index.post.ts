@@ -26,9 +26,6 @@ export default defineEventHandler(async (event: H3Event) => {
 
 	const body = await readBody<BookData>(event);
 
-	console.log('body', body);
-	console.log('user id', user.id);
-
 	try {
 		// Insert the book with the user_id set to the authenticated user's ID
 		const { data, error } = await client
@@ -37,9 +34,6 @@ export default defineEventHandler(async (event: H3Event) => {
 				...body,
 				user_id: user.id, // Add the authenticated user's ID to the book entry
 			});
-
-		console.log('data', data);
-		console.log('error', error);
 
 		if (error) throw error;
 

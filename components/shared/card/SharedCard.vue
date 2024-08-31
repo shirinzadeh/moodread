@@ -1,7 +1,7 @@
 <template>
 	<UCard class="bg-white shadow-lg">
 		<template #header>
-			<h2 class="text-2xl font-semibold text-emerald-300">
+			<h2 class="text-md sm:text-lg font-semibold text-emerald-300">
 				{{ headerTitle }}
 			</h2>
 		</template>

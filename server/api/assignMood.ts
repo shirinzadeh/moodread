@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 			throw createError({ statusCode: 404, statusMessage: 'Mood not found' });
 		}
 
-		return { success: true, mood: { id: mood.id, name: mood.mood_name } };
+		return { mood: { id: mood.id, name: mood.mood_name } };
 	}
 	catch (error) {
 		console.error('Error assigning mood:', error);

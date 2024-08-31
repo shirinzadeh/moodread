@@ -22,7 +22,7 @@
 				</template>
 				<div class="flex flex-col items-center">
 					<NuxtImg
-						:src="book.volumeInfo.imageLinks?.smallThumbnail || '/images/book-image.jpg'"
+						:src="book.volumeInfo.imageLinks?.smallThumbnail || '/images/book-placeholder.jpg'"
 						:alt="book.volumeInfo.title"
 						class="w-36 h-auto object-cover rounded-md shadow-sm mb-4"
 					/>
@@ -31,18 +31,16 @@
 					</p>
 				</div>
 				<template #footer>
-					<div class="mt-auto">
-						<UButton
-							color="blue"
-							variant="soft"
-							:disabled="isBookDisabled(book.id)"
-							:loading="isBookSaving(book.id)"
-							class="w-full justify-center "
-							@click="$emit('saveBook', book)"
-						>
-							Save Book
-						</UButton>
-					</div>
+					<UButton
+						color="blue"
+						variant="soft"
+						:disabled="isBookDisabled(book.id)"
+						:loading="isBookSaving(book.id)"
+						class="w-full justify-center "
+						@click="$emit('saveBook', book)"
+					>
+						Save Book
+					</UButton>
 				</template>
 			</UCard>
 		</div>

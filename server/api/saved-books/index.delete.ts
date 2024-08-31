@@ -12,14 +12,12 @@ export default defineEventHandler(async (event) => {
 	const client = await serverSupabaseClient(event);
 	const { bookId } = await readBody(event);
 
-	console.log(client.from('saved_books').delete().eq('id', bookId));
 	const response = await client
 		.from('saved_books')
 		.delete()
 		.eq('id', bookId)
 		.select('*'); // Ensure the deletion was successful by selecting the deleted row
 
-	console.log(response);
 	const { data: deleteData, error: deleteError } = response;
 
 	if (deleteError) {

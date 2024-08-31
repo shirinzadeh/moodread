@@ -39,42 +39,54 @@ const determineMoodFromText = (text) => {
 		moodScores[mood] = keywords.filter(keyword => tokens.includes(keyword)).length;
 	}
 
-	// Find the mood with the highest score
-	let topMood = Object.keys(moodScores).reduce((a, b) => moodScores[a] > moodScores[b] ? a : b);
-
 	// If no keywords matched, use sentiment analysis
-	if (moodScores[topMood] === 0) {
-		if (sentimentResult.score > 20 && sentimentResult.comparative > 0.2) {
-			return 'Energetic';
-		}
-		else if (sentimentResult.score > 0) {
-			if (sentimentResult.comparative > 0.1) {
-				return 'Happy';
-			}
-			else if (sentimentResult.comparative > 0.05) {
-				return 'Hopeful';
-			}
-			else {
-				return 'Calm';
-			}
-		}
-		else if (sentimentResult.score < 0) {
-			if (sentimentResult.comparative < -0.1) {
-				return 'Sad';
-			}
-			else if (sentimentResult.comparative < -0.2) {
-				return 'Melancholic';
-			}
-			else {
-				return 'Anxious';
-			}
-		}
-		else {
-			return 'Confused';
-		}
+	const { score, comparative } = sentimentResult;
+
+	if (score > 20 && comparative > 0.2) {
+		return 'Excited'; // Highly positive and energetic mood
 	}
 
-	return topMood;
+	if (score > 10) {
+		if (comparative > 0.15) {
+			return 'Happy'; // Positive mood with strong positivity
+		}
+		if (comparative > 0.05) {
+			return 'Inspired'; // Positive but slightly less intense
+		}
+		return 'Calm'; // Positive with a calm disposition
+	}
+
+	if (score > 0) {
+		if (comparative > 0.1) {
+			return 'Happy'; // Slightly positive mood
+		}
+		if (comparative > 0.05) {
+			return 'Inspired'; // Low-level positive mood
+		}
+		return 'Calm'; // Generally positive but more reserved
+	}
+
+	if (score < 0) {
+		if (comparative < -0.2) {
+			return 'Melancholic'; // Strongly negative mood
+		}
+		if (comparative < -0.1) {
+			return 'Sad'; // Moderately negative mood
+		}
+		return 'Anxious'; // Negative but not deeply so
+	}
+
+	if (score < -10) {
+		if (comparative < -0.15) {
+			return 'Sad'; // Intensely negative
+		}
+		if (comparative < -0.1) {
+			return 'Melancholic'; // Moderately negative
+		}
+		return 'Anxious'; // Mildly negative
+	}
+
+	return 'Curious';
 };
 
 // Helper function to get mood from category

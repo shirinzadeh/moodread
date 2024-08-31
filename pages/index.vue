@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="container mx-auto px-4 py-12">
+		<div class="container mx-auto sm:px-4 py-8 sm:py-12">
 			<h1 class="text-4xl font-bold mb-8 text-center text-emerald-400">
 				Book Explorer
 			</h1>
@@ -26,61 +26,10 @@
 			</div>
 
 			<!-- Mood-based Saved Books Section -->
-			<div v-if="selectedMood" class="mb-12">
-				<h2 class="text-2xl font-semibold mb-4 text-blue-500">
-					Books for {{ selectedMood.mood_name }} Mood
-				</h2>
-				<div v-if="loadingSavedBooks" class="text-center py-4">
-					<UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8 mx-auto text-emerald-600" />
-					<p class="mt-2 text-emerald-600">
-						Loading books...
-					</p>
-				</div>
-				<div v-else-if="savedBooks.length === 0" class="text-center py-4 bg-white rounded-lg shadow">
-					<p class="text-emerald-600">
-						No books found for this mood.
-					</p>
-				</div>
-				<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-					<UCard
-						v-for="book in savedBooks"
-						:key="book.id"
-						class="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-					>
-						<template #header>
-							<h3 class="text-lg font-semibold text-blue-200 truncate">
-								{{ book.title }}
-							</h3>
-						</template>
-						<div class="flex flex-col items-center py-4">
-							<img
-								:src="getBookImage(book)"
-								:alt="book.title"
-								class="w-32 h-48 object-cover rounded-md shadow-sm mb-4"
-							>
-							<p class="text-gray-600 text-sm">
-								By {{ book.author }}
-							</p>
-						</div>
-						<template #footer>
-							<UButton
-								color="cyan"
-								variant="soft"
-								class="w-full"
-								@click="viewBookDetails(book)"
-							>
-								View Details
-							</UButton>
-						</template>
-					</UCard>
-				</div>
-			</div>
-
-			<!-- Book Recommendation -->
-			<BookRecommendation
-				v-if="recommendedBook"
-				:book="recommendedBook"
-				@feedback="showMoodFeedbackModal = true"
+			<BookMoodResult
+				:selected-mood="selectedMood"
+				:loading-saved-books="loadingSavedBooks"
+				:saved-books="savedBooks"
 			/>
 
 			<!-- Search Results -->
@@ -88,6 +37,14 @@
 				:books="books"
 				:loading="searchLoading"
 				:search-query="formData.searchQuery"
+				:is-book-disabled="isBookDisabled"
+				:is-book-saving="isBookSaving"
+				@save-book="saveBook"
+			/>
+
+			<!-- Book Recommendation -->
+			<BookRecommendation
+				v-if="user"
 				:is-book-disabled="isBookDisabled"
 				:is-book-saving="isBookSaving"
 				@save-book="saveBook"
@@ -111,9 +68,7 @@ const supabase = useSupabaseClient();
 const { moods, recommendedBook, loading: moodLoading, fetchMoods, submitFeedback } = useMoodRecommendation();
 
 const bookStatus = ref({});
-// const moodData = reactive({
-// 	selectedMood: null,
-// });
+
 const feedbackData = reactive({
 	mood: null,
 	feedback: '',
@@ -125,15 +80,26 @@ const formData = ref({
 	searchQuery: '',
 });
 
-const handleSearch = () => {
+const handleSearch = async () => {
 	if (formData.value.searchQuery.trim()) {
-		fetchBooks(formData.value.searchQuery);
+		await fetchBooks(formData.value.searchQuery);
 	}
 };
 
 const handleSearchInput = (value) => {
 	if (value.trim()) {
 		fetchBooks(value);
+	}
+};
+
+const logSearchHistory = async (query) => {
+	const { error } = await supabase
+		.from('search_history')
+		.insert([{ user_id: user.value.id, query }]);
+
+	if (error) {
+		console.error('Error logging search history:', error);
+		throw error;
 	}
 };
 
@@ -144,6 +110,10 @@ watch(() => formData.value.searchQuery, (newQuery) => {
 	debounceTimeout = setTimeout(() => {
 		if (newQuery.trim()) {
 			fetchBooks(newQuery);
+			logSearchHistory(newQuery);
+		}
+		else {
+			books.value.length = 0;
 		}
 	}, 300); // 300ms delay
 });
@@ -154,6 +124,10 @@ const loadingSavedBooks = ref(false);
 
 // Update handleMoodSelection function
 const handleMoodSelection = async (mood) => {
+	if (!user.value) {
+		showToastError('You need to sign in first.');
+		return;
+	}
 	if (!mood) {
 		showToastError('Please select a mood');
 		return;
@@ -211,10 +185,14 @@ const submitMoodFeedback = async () => {
 };
 
 const saveBook = async (book) => {
+	console.log(book);
 	if (!user.value) {
 		showToastError('You need to sign in to save books.');
 		return;
 	}
+
+	// Normalize the book structure
+	const normalizedBook = normalizeBook(book);
 
 	// Set the status to disabled and saving
 	bookStatus.value[book.id] = { isDisabled: true, isSaving: true };
@@ -225,18 +203,18 @@ const saveBook = async (book) => {
 		const { error } = await supabase
 			.from('books')
 			.upsert({
-				google_books_id: book.id,
-				title: book.volumeInfo.title,
-				author: book.volumeInfo.authors?.join(', ') || 'Unknown Author',
-				description: book.volumeInfo.description, // Include description
+				google_books_id: normalizedBook.id,
+				title: normalizedBook.title,
+				author: normalizedBook.authors?.join(', ') || 'Unknown Author',
+				description: normalizedBook.description, // Include description
 				related_user_id: user.value?.id,
-				other_details: JSON.stringify(book.volumeInfo),
+				other_details: JSON.stringify(normalizedBook),
 			}, { onConflict: 'google_books_id' });
 
 		if (error) throw error;
 
 		// Automatically assign mood to the saved book
-		await assignMoodToSavedBook(book.id, book.volumeInfo);
+		await assignMoodToSavedBook(normalizedBook.id, normalizedBook);
 
 		showToastSuccess('Book saved successfully!');
 	}
@@ -265,8 +243,6 @@ const assignMoodToSavedBook = async (bookId, bookDetails) => {
 			}),
 		});
 
-		console.log('response', response);
-
 		const mood = response?.mood;
 		if (mood) {
 			// Save the assigned mood to the book
@@ -278,19 +254,22 @@ const assignMoodToSavedBook = async (bookId, bookDetails) => {
 	}
 	catch (error) {
 		console.error('Error assigning mood:', error);
-		showToastError(error?.message);
+		showToastError('Error assigning mood');
 	}
+};
+
+const normalizeBook = (book) => {
+	return {
+		id: book.id,
+		title: book.title || book.volumeInfo?.title,
+		authors: book.authors || book.volumeInfo?.authors,
+		description: book.description || book.volumeInfo?.description,
+		imageLinks: book.thumbnail || book.volumeInfo?.imageLinks?.smallThumbnail,
+	};
 };
 
 const isBookDisabled = bookId => bookStatus.value[bookId]?.isDisabled || false;
 const isBookSaving = bookId => bookStatus.value[bookId]?.isSaving || false;
-
-const getBookImage = (book) => {
-	const otherDetails = typeof book.other_details === 'string'
-		? JSON.parse(book.other_details)
-		: book.other_details;
-	return otherDetails?.imageLinks?.thumbnail || '/images/book-placeholder.jpg';
-};
 
 // Fetch moods when the component is mounted
 onMounted(async () => {
