@@ -1,7 +1,13 @@
 [build]
   command = "pnpm run build"
   publish = ".output/public"
-  environment = { NODE_VERSION = "20" }
+
+[build.environment]
+  NODE_VERSION = "20"  # or whichever version you're using
+  NPM_FLAGS = "--shamefully-hoist"
+
+[functions]
+  directory = ".output/server"
 
 [[redirects]]
   from = "/*"
@@ -15,19 +21,3 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-
-[functions]
-  directory = ".output/server"
-
-[build.processing]
-  skip_processing = false
-[build.processing.css]
-  bundle = false
-  minify = false
-[build.processing.js]
-  bundle = false
-  minify = false
-[build.processing.html]
-  pretty_urls = false
-[build.processing.images]
-  compress = false
