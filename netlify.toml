@@ -3,19 +3,17 @@
   publish = ".netlify/functions-internal/server/chunks/build"
 
 [functions]
-  directory = ".output/server"
+  directory = ".netlify/functions-internal/server/server.mjs "
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/server"
   status = 200
-  force = true
 
 
 [[headers]]
