@@ -1,6 +1,6 @@
 [build]
   command = "pnpm run build"
-  publish = ".netlify/functions-internal/server/chunks/build"
+  publish = "dist"
 
 [functions]
   directory = ".netlify/functions-internal/server/server.mjs "
