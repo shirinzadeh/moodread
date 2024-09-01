@@ -26,21 +26,6 @@ export default defineNuxtConfig({
 		transpile: ['swiper'],
 	},
 
-	vite: {
-		optimizeDeps: {
-			include: ['swiper', 'swiper/vue'],
-		},
-		build: {
-			rollupOptions: {
-				output: {
-					manualChunks: {
-						swiper: ['swiper', 'swiper/vue'],
-					},
-				},
-			},
-		},
-	},
-
 	// Nuxt 3 performance optimizations
 	// experimental: {
 	// 	payloadExtraction: true,
