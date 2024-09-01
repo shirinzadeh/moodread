@@ -1,9 +1,9 @@
 [build]
   command = "pnpm run build"
-  publish = "/opt/build/repo/.output/public"
+  publish = ".output/public"
 
 [functions]
-  directory = "/opt/build/repo/.output/public"
+  directory = ".output/server"
 
 [[redirects]]
   from = "/*"
