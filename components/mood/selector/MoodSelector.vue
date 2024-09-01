@@ -19,8 +19,6 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineEmits, defineProps } from 'vue';
-
 const props = defineProps({
 	moods: {
 		type: Array,

@@ -13,6 +13,13 @@ export default defineNuxtConfig({
 		// Use CSS instead of SCSS for smaller file size
 		styleLang: 'css',
 	},
+	// Conditionally apply the image configuration only in production
+	...(process.env.NODE_ENV === 'production' && {
+		image: {
+			provider: 'netlify', // Use Netlify image provider in production
+			domains: ['books.google.com'], // Include domains you need
+		},
+	}),
 
 	// Nuxt 3 build optimizations
 	nitro: {

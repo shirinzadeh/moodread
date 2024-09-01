@@ -103,19 +103,24 @@ const logSearchHistory = async (query) => {
 	}
 };
 
-// Debounce the search input
-let debounceTimeout;
+let debounceTimeout; // Stores timeout ID for debouncing
+let latestQuery = ''; // Tracks the most recent search query
 watch(() => formData.value.searchQuery, (newQuery) => {
 	clearTimeout(debounceTimeout);
+	latestQuery = newQuery; // Update latest query
+
 	debounceTimeout = setTimeout(() => {
-		if (newQuery.trim()) {
+		if (newQuery.trim()) { // Process only non-empty queries
 			fetchBooks(newQuery);
-			logSearchHistory(newQuery);
+
+			if (newQuery === latestQuery) { // Log history only for the latest query
+				logSearchHistory(newQuery);
+			}
 		}
 		else {
 			books.value.length = 0;
 		}
-	}, 300); // 300ms delay
+	}, 300); // Apply debounce delay
 });
 
 const selectedMood = ref(null);
@@ -185,7 +190,6 @@ const submitMoodFeedback = async () => {
 };
 
 const saveBook = async (book) => {
-	console.log(book);
 	if (!user.value) {
 		showToastError('You need to sign in to save books.');
 		return;

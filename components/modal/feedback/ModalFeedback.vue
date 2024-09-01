@@ -44,8 +44,6 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue';
-
 const props = defineProps({
 	modelValue: {
 		type: Boolean,

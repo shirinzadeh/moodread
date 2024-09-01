@@ -25,7 +25,6 @@ export function useGoogleBooks() {
 			const response = await $fetch<GoogleBooksAPIResponse>('https://www.googleapis.com/books/v1/volumes', {
 				params: {
 					q: query,
-					key: process.env.GOOGLE_BOOKS_API_KEY,
 				},
 			});
 
