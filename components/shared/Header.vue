@@ -119,10 +119,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-
 const user = useSupabaseUser();
-const router = useRouter();
 const client = useSupabaseClient();
 
 const isMenuOpen = ref(false);
@@ -130,7 +127,6 @@ const scrollbarWidth = ref(0);
 
 const logout = async () => {
 	await client.auth.signOut();
-	router.push('/login');
 };
 
 const handleLogout = () => {
