@@ -54,7 +54,7 @@
 
 		<!-- Mobile Menu -->
 		<Transition name="slide">
-			<div v-if="isMenuOpen" class="fixed inset-0 bg-gray-800 z-50 md:hidden overflow-y-auto">
+			<div v-if="isMenuOpen" class="fixed inset-0 bg-gray-100 dark:bg-gray-800 z-50 md:hidden overflow-y-auto">
 				<UContainer class="h-full flex flex-col">
 					<div class="flex justify-between items-center py-4">
 						<NuxtLink

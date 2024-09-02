@@ -75,9 +75,18 @@
 		<UModal v-model="isDetailModalOpen">
 			<UCard v-if="selectedBook" class="max-w-2xl mx-auto bg-white dark:bg-gray-900">
 				<template #header>
-					<h3 class="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
-						{{ selectedBook.title }}
-					</h3>
+					<div class="flex items-center justify-between">
+						<h3 class="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
+							{{ selectedBook.title }}
+						</h3>
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark-20-solid"
+							class="-my-1"
+							@click="isDetailModalOpen = false"
+						/>
+					</div>
 				</template>
 				<div class="space-y-4">
 					<p><strong class="text-emerald-600 dark:text-emerald-400">Author:</strong> {{ selectedBook.author }}</p>

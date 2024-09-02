@@ -43,7 +43,7 @@
 				>
 					<template #header>
 						<div class="flex items-center justify-between">
-							<h3 class="text-lg font-semibold text-blue-200 truncate">
+							<h3 class="text-lg font-semibold text-blue-400 dark:text-blue-200 truncate">
 								{{ book.title }}
 							</h3>
 							<UIcon

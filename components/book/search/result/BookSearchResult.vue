@@ -4,7 +4,7 @@
 		<h2 class="text-3xl font-semibold mb-6 text-emerald-400 dark:text-emerald-600">
 			Search Results
 		</h2>
-		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
 			<UCard
 				v-for="book in books"
 				:key="book.id"
