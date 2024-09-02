@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="container mx-auto sm:px-4 py-8 sm:py-12">
-			<h1 class="text-4xl font-bold mb-8 text-center text-emerald-400">
+			<h1 class="text-4xl font-bold mb-8 text-center text-emerald-600 dark:text-emerald-400">
 				Book Explorer
 			</h1>
 
@@ -190,7 +190,7 @@ const submitMoodFeedback = async () => {
 
 const saveBook = async (book) => {
 	if (!user.value) {
-		showToastError('You need to sign in to save books.');
+		showToastError('You need to sign in first.');
 		return;
 	}
 

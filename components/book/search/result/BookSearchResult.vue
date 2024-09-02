@@ -1,7 +1,7 @@
 <!-- components/SearchResults.vue -->
 <template>
 	<div v-if="books.length" class="mt-12">
-		<h2 class="text-3xl font-semibold mb-6 text-emerald-400">
+		<h2 class="text-3xl font-semibold mb-6 text-emerald-400 dark:text-emerald-600">
 			Search Results
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -16,7 +16,7 @@
 				}"
 			>
 				<template #header>
-					<h3 class="text-lg font-semibold text-blue-200 truncate">
+					<h3 class="text-lg font-semibold text-blue-400 dark:text-blue-200 truncate">
 						{{ book.volumeInfo.title }}
 					</h3>
 				</template>
@@ -26,7 +26,7 @@
 						:alt="book.volumeInfo.title"
 						class="w-36 h-auto object-cover rounded-md shadow-sm mb-4"
 					/>
-					<p class=" text-sm mb-4">
+					<p class=" text-sm mb-4 text-gray-800 dark:text-gray-300">
 						By {{ book.volumeInfo.authors?.join(', ') || 'Unknown Author' }}
 					</p>
 				</div>

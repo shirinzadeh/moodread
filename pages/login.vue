@@ -2,7 +2,7 @@
 	<div class="container mx-auto mt-10 px-4">
 		<UCard class="max-w-md mx-auto">
 			<template #header>
-				<h1 class="text-2xl font-bold">
+				<h1 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
 					{{ isLogin ? 'Sign In' : 'Sign Up' }}
 				</h1>
 			</template>

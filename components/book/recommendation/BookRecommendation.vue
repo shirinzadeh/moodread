@@ -49,7 +49,7 @@
 							<UIcon
 								v-if="book.score > 80"
 								name="i-heroicons-star"
-								class="text-yellow-400 ml-2"
+								class="text-yellow-800 dark:text-yellow-400 w-6 h-6 ml-2"
 							/>
 						</div>
 					</template>

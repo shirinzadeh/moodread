@@ -1,31 +1,25 @@
 <template>
 	<div>
-		<h1 class="text-4xl font-bold mb-8 text-center text-emerald-400">
+		<h1 class="text-4xl font-bold mb-8 text-center text-emerald-600 dark:text-emerald-400">
 			Saved Books
 		</h1>
 
-		<div
-			v-if="pending"
-			class="text-center py-12"
-		>
+		<div v-if="pending" class="text-center py-12">
 			<UIcon
 				name="i-heroicons-arrow-path"
-				class="animate-spin h-12 w-12 mx-auto text-emerald-600 mb-4"
+				class="animate-spin h-12 w-12 mx-auto text-emerald-600 dark:text-emerald-400 mb-4"
 			/>
-			<p class="text-lg text-emerald-200">
+			<p class="text-lg text-gray-700 dark:text-emerald-200">
 				Loading your saved books...
 			</p>
 		</div>
 
-		<div
-			v-else-if="books.length === 0"
-			class="text-center py-12 rounded-lg shadow-md"
-		>
+		<div v-else-if="books.length === 0" class="text-center py-12 rounded-lg shadow-md bg-gray-50 dark:bg-gray-800">
 			<UIcon
 				name="i-heroicons-book-open"
-				class="h-16 w-16 mx-auto text-emerald-400 mb-4"
+				class="h-16 w-16 mx-auto text-emerald-600 dark:text-emerald-400 mb-4"
 			/>
-			<p class="text-xl text-emerald-200">
+			<p class="text-xl text-gray-700 dark:text-emerald-200">
 				You haven't saved any books yet.
 			</p>
 			<NuxtLink to="/" class="mt-4 inline-block">
@@ -35,14 +29,11 @@
 			</NuxtLink>
 		</div>
 
-		<div
-			v-else
-			class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
-		>
+		<div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-8">
 			<UCard
 				v-for="book in books"
 				:key="book.id"
-				class="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+				class="bg-white dark:bg-gray-900 shadow-lg hover:shadow-xl transition-shadow duration-300"
 				:ui="{
 					footer: {
 						base: 'mt-auto',
@@ -50,11 +41,11 @@
 				}"
 			>
 				<template #header>
-					<h3 class="text-md sm:text-xl font-semibold text-emerald-200 truncate">
+					<h3 class="text-md sm:text-xl font-semibold text-emerald-500 dark:text-emerald-200 truncate">
 						{{ book.title }}
 					</h3>
 				</template>
-				<p class="text-sm sm:text-base ">
+				<p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">
 					By {{ book.author }}
 				</p>
 				<template #footer>
@@ -82,34 +73,34 @@
 
 		<!-- Detail Modal -->
 		<UModal v-model="isDetailModalOpen">
-			<UCard v-if="selectedBook" class="max-w-2xl mx-auto">
+			<UCard v-if="selectedBook" class="max-w-2xl mx-auto bg-white dark:bg-gray-900">
 				<template #header>
-					<h3 class="text-2xl font-bold text-emerald-200">
+					<h3 class="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
 						{{ selectedBook.title }}
 					</h3>
 				</template>
 				<div class="space-y-4">
-					<p><strong class="text-emerald-600">Author:</strong> {{ selectedBook.author }}</p>
+					<p><strong class="text-emerald-600 dark:text-emerald-400">Author:</strong> {{ selectedBook.author }}</p>
 					<div v-if="selectedBook.other_details">
-						<h3 class="font-semibold text-lg text-emerald-600 mt-6 mb-2">
+						<h3 class="font-semibold text-lg text-gray-800 dark:text-emerald-400 mt-6 mb-2">
 							Additional Details:
 						</h3>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<p v-if="bookDetails.categories?.length">
-								<strong class="text-emerald-600">Categories:</strong> {{ bookDetails.categories.join(', ') }}
+								<strong class="text-emerald-600 dark:text-emerald-400">Categories:</strong> {{ bookDetails.categories.join(', ') }}
 							</p>
 							<p v-if="bookDetails.publisher">
-								<strong class="text-emerald-600">Publisher:</strong> {{ bookDetails.publisher }}
+								<strong class="text-emerald-600 dark:text-emerald-400">Publisher:</strong> {{ bookDetails.publisher }}
 							</p>
 							<p v-if="bookDetails.publishedDate">
-								<strong class="text-emerald-600">Published date:</strong> {{ bookDetails.publishedDate }}
+								<strong class="text-emerald-600 dark:text-emerald-400">Published date:</strong> {{ bookDetails.publishedDate }}
 							</p>
 							<p v-if="bookDetails.pageCount">
-								<strong class="text-emerald-600">Page count:</strong> {{ bookDetails.pageCount }}
+								<strong class="text-emerald-600 dark:text-emerald-400">Page count:</strong> {{ bookDetails.pageCount }}
 							</p>
 						</div>
-						<p v-if="bookDetails.description" class="mt-4">
-							<strong class="text-emerald-600">Description:</strong> {{ bookDetails.description }}
+						<p v-if="bookDetails.description" class="mt-4 text-gray-700 dark:text-gray-300">
+							<strong class="text-emerald-600 dark:text-emerald-400">Description:</strong> {{ bookDetails.description }}
 						</p>
 					</div>
 				</div>
@@ -118,16 +109,13 @@
 
 		<!-- Delete Confirmation Dialog -->
 		<UModal v-model="isDeleteDialogOpen">
-			<UCard class="max-w-md mx-auto">
-				<p class="text-lg text-center mb-6">
+			<UCard class="max-w-md mx-auto bg-white dark:bg-gray-900">
+				<p class="text-lg text-center mb-6 text-gray-800 dark:text-gray-300">
 					Are you sure you want to delete "<span class="font-semibold">{{ selectedBook?.title }}</span>"?
 				</p>
 				<template #footer>
 					<div class="flex justify-end space-x-4">
-						<UButton
-							color="gray"
-							@click="isDeleteDialogOpen = false"
-						>
+						<UButton color="gray" @click="isDeleteDialogOpen = false">
 							Cancel
 						</UButton>
 						<UButton

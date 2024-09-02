@@ -5,12 +5,9 @@
 		</h2>
 		<div v-if="loadingSavedBooks" class="text-center py-4">
 			<UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8 mx-auto text-emerald-600" />
-			<p class="mt-2 text-emerald-600">
-				Loading books...
-			</p>
 		</div>
 		<div v-else-if="savedBooks.length === 0">
-			<p class="text-yellow-100 text-center">
+			<p class="text-yellow-700 dark:text-yellow-100 text-center">
 				No books found for this mood from your saved books.
 			</p>
 		</div>
@@ -21,7 +18,7 @@
 				class="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300"
 			>
 				<template #header>
-					<h3 class="text-lg font-semibold text-blue-200 truncate">
+					<h3 class="text-lg font-semibold text-blue-400 dark:text-blue-200 truncate">
 						{{ book.title }}
 					</h3>
 				</template>
@@ -31,7 +28,7 @@
 						:alt="book.title"
 						class="w-32 h-48 object-cover rounded-md shadow-sm mb-4"
 					/>
-					<p class=" text-sm">
+					<p class="text-center text-sm text-gray-800 dark:text-gray-300">
 						By {{ book.author }}
 					</p>
 				</div>
@@ -52,32 +49,32 @@
 	<UModal v-model="isDetailModalOpen">
 		<UCard v-if="selectedBook" class="max-w-2xl mx-auto">
 			<template #header>
-				<h3 class="text-2xl font-bold text-emerald-200">
+				<h3 class="text-2xl font-bold  text-gray-800 dark:text-emerald-200">
 					{{ selectedBook.title }}
 				</h3>
 			</template>
 			<div class="space-y-4">
-				<p><strong class="text-emerald-600">Author:</strong> {{ selectedBook.author }}</p>
+				<p><strong class="text-emerald-600 dark:text-emerald-400">Author:</strong> {{ selectedBook.author }}</p>
 				<div v-if="selectedBook.other_details">
-					<h3 class="font-semibold text-lg text-emerald-600 mt-6 mb-2">
+					<h3 class="font-semibold text-lg text-gray-800 dark:text-emerald-200 mt-6 mb-2">
 						Additional Details:
 					</h3>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<p v-if="bookDetails.categories?.length">
-							<strong class="text-emerald-600">Categories:</strong> {{ bookDetails.categories.join(', ') }}
+							<strong class="text-emerald-600 dark:text-emerald-400">Categories:</strong> {{ bookDetails.categories.join(', ') }}
 						</p>
 						<p v-if="bookDetails.publisher">
-							<strong class="text-emerald-600">Publisher:</strong> {{ bookDetails.publisher }}
+							<strong class="text-emerald-600 dark:text-emerald-400">Publisher:</strong> {{ bookDetails.publisher }}
 						</p>
 						<p v-if="bookDetails.publishedDate">
-							<strong class="text-emerald-600">Published date:</strong> {{ bookDetails.publishedDate }}
+							<strong class="text-emerald-600 dark:text-emerald-400">Published date:</strong> {{ bookDetails.publishedDate }}
 						</p>
 						<p v-if="bookDetails.pageCount">
-							<strong class="text-emerald-600">Page count:</strong> {{ bookDetails.pageCount }}
+							<strong class="text-emerald-600 dark:text-emerald-400">Page count:</strong> {{ bookDetails.pageCount }}
 						</p>
 					</div>
 					<p v-if="bookDetails.description" class="mt-4">
-						<strong class="text-emerald-600">Description:</strong> {{ bookDetails.description }}
+						<strong class="text-emerald-600 dark:text-emerald-400">Description:</strong> {{ bookDetails.description }}
 					</p>
 				</div>
 			</div>

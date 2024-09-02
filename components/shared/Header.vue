@@ -1,8 +1,8 @@
 <template>
-	<header class="bg-gray-800 text-white shadow-md">
+	<header class="bg-gray-100 dark:bg-gray-800 shadow-md">
 		<UContainer>
 			<div class="flex justify-between items-center py-4">
-				<NuxtLink to="/" class="text-2xl font-bold">
+				<NuxtLink to="/" class="text-2xl font-bold text-gray-800 dark:text-gray-100">
 					Moodread
 				</NuxtLink>
 				<!-- Desktop Navigation -->
@@ -59,7 +59,7 @@
 					<div class="flex justify-between items-center py-4">
 						<NuxtLink
 							to="/"
-							class="text-2xl font-bold"
+							class="text-2xl font-bold text-gray-800 dark:text-gray-100"
 							@click="closeMenu"
 						>
 							Moodread
