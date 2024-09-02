@@ -26,11 +26,11 @@
 					</h3>
 				</template>
 				<div class="flex flex-col items-center py-4">
-					<img
+					<NuxtImg
 						:src="getBookImage(book)"
 						:alt="book.title"
 						class="w-32 h-48 object-cover rounded-md shadow-sm mb-4"
-					>
+					/>
 					<p class=" text-sm">
 						By {{ book.author }}
 					</p>
@@ -39,7 +39,7 @@
 					<UButton
 						color="cyan"
 						variant="soft"
-						class="w-full"
+						class="w-full justify-center"
 						@click="openDetailModal(book)"
 					>
 						View Details
@@ -106,7 +106,8 @@ const getBookImage = (book) => {
 	const otherDetails = typeof book.other_details === 'string'
 		? JSON.parse(book.other_details)
 		: book.other_details;
-	return otherDetails?.imageLinks?.thumbnail || '/images/book-placeholder.jpg';
+
+	return otherDetails?.imageLinks || otherDetails?.imageLink || '/images/book-placeholder.jpg';
 };
 
 const selectedBook = ref(null);

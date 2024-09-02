@@ -20,7 +20,56 @@ interface GoogleBook {
 		imageLinks?: {
 			smallThumbnail: string;
 		};
+		publishedDate: string;
+		averageRating: number;
 	};
+}
+
+// Define weights for each scoring criterion
+const WEIGHTS = {
+	KEYWORD_MATCH: 2,
+	GENRE_MATCH: 2,
+	POPULARITY: 1,
+	RATING: 3,
+	RECENCY: 0.5,
+};
+
+function scoreRecommendation(book: GoogleBook, keywords: Set<string>): number {
+	let score = 0;
+
+	// Keyword matching (0-5 points, weighted)
+	const bookKeywords = [
+		book.volumeInfo.title,
+		...(book.volumeInfo.authors || []),
+		book.volumeInfo.description,
+	].map(k => k?.toLowerCase() || '');
+
+	const keywordMatchCount = bookKeywords.filter(keyword => keywords.has(keyword)).length;
+	score += Math.min(keywordMatchCount, 5) * WEIGHTS.KEYWORD_MATCH;
+
+	// Rating (0-5 points, weighted)
+	const averageRating = book.volumeInfo?.averageRating || 0;
+	score += averageRating * WEIGHTS.RATING;
+
+	// Published date recency (0-2 points, weighted)
+	const publishedYear = new Date(book.volumeInfo?.publishedDate).getFullYear();
+	const currentYear = new Date().getFullYear();
+	if (currentYear - publishedYear <= 2) score += 2 * WEIGHTS.RECENCY;
+	else if (currentYear - publishedYear <= 5) score += 1 * WEIGHTS.RECENCY;
+
+	return score;
+}
+
+// Normalize scores to a 0-100 scale
+function normalizeScores(recommendations: any[]): any[] {
+	const maxScore = Math.max(...recommendations.map(r => r.score));
+	const minScore = Math.min(...recommendations.map(r => r.score));
+	const range = maxScore - minScore;
+
+	return recommendations.map(rec => ({
+		...rec,
+		normalizedScore: range !== 0 ? Math.round(((rec.score - minScore) / range) * 100) : 100,
+	}));
 }
 
 async function fetchWithRetry(url: string, params: Record<string, string>, maxRetries = 3) {
@@ -82,29 +131,29 @@ export default defineEventHandler(async (event) => {
 
 		const recommendationsResponses = await Promise.allSettled(recommendationsPromises);
 
-		// Process and deduplicate recommendations
-		const recommendationSet = new Set<string>();
-		const recommendations = recommendationsResponses
+		const scoredRecommendations = recommendationsResponses
 			.filter((response): response is PromiseFulfilledResult<{ items: GoogleBook[] }> => response.status === 'fulfilled')
 			.flatMap(response => response.value.items || [])
-			.filter((book) => {
-				if (recommendationSet.has(book.id)) return false;
-				recommendationSet.add(book.id);
-				return true;
-			})
 			.map(book => ({
+				book,
+				score: scoreRecommendation(book, keywords),
+			}))
+			.sort((a, b) => b.score - a.score);
+
+		const normalizedRecommendations = normalizeScores(scoredRecommendations)
+			.slice(0, 10)
+			.map(({ book, normalizedScore }) => ({
 				id: book.id,
 				title: book.volumeInfo.title,
 				authors: book.volumeInfo.authors,
 				description: book.volumeInfo.description,
 				thumbnail: book.volumeInfo.imageLinks?.smallThumbnail,
-			}))
-			.slice(0, 10); // Limit to 10 recommendations
+				score: normalizedScore,
+			}));
 
-		return { recommendations };
+		return { recommendations: normalizedRecommendations };
 	}
 	catch (error) {
-		console.error('Error fetching recommendations:', error);
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'Internal Server Error',

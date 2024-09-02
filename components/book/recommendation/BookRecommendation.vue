@@ -42,9 +42,16 @@
 					}"
 				>
 					<template #header>
-						<h3 class="text-lg font-semibold text-blue-200 truncate">
-							{{ book.title }}
-						</h3>
+						<div class="flex items-center justify-between">
+							<h3 class="text-lg font-semibold text-blue-200 truncate">
+								{{ book.title }}
+							</h3>
+							<UIcon
+								v-if="book.score > 80"
+								name="i-heroicons-star"
+								class="text-yellow-400 ml-2"
+							/>
+						</div>
 					</template>
 					<div class="flex flex-col items-center">
 						<NuxtImg

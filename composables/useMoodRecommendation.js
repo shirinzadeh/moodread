@@ -7,7 +7,7 @@ export function useMoodRecommendation() {
 	const fetchMoods = async () => {
 		const { data, error } = await supabase.from('moods').select('*');
 		if (error) {
-			console.error('Error fetching moods:', error);
+			showToastError('Error fetching moods');
 			return [];
 		}
 		moods.value = data;

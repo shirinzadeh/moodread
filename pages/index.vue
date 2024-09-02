@@ -98,7 +98,7 @@ const logSearchHistory = async (query) => {
 		.insert([{ user_id: user.value.id, query }]);
 
 	if (error) {
-		console.error('Error logging search history:', error);
+		showToastError('Error logging search history');
 		throw error;
 	}
 };
@@ -142,13 +142,12 @@ const handleMoodSelection = async (mood) => {
 	loadingSavedBooks.value = true;
 
 	try {
-		const { data, error } = await supabase
+		const { data } = await supabase
 			.from('books')
 			.select('*')
 			.eq('mood_id', mood.id)
 			.eq('related_user_id', user.value.id);
 
-		if (error) throw error;
 		savedBooks.value = data;
 	}
 	catch (error) {
@@ -257,7 +256,6 @@ const assignMoodToSavedBook = async (bookId, bookDetails) => {
 		}
 	}
 	catch (error) {
-		console.error('Error assigning mood:', error);
 		showToastError('Error assigning mood');
 	}
 };
@@ -268,7 +266,7 @@ const normalizeBook = (book) => {
 		title: book.title || book.volumeInfo?.title,
 		authors: book.authors || book.volumeInfo?.authors,
 		description: book.description || book.volumeInfo?.description,
-		imageLinks: book.thumbnail || book.volumeInfo?.imageLinks?.smallThumbnail,
+		imageLink: book.thumbnail || book.volumeInfo?.imageLinks?.smallThumbnail,
 	};
 };
 
