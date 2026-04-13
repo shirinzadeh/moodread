@@ -29,7 +29,8 @@ Reading choices are often emotional as well as practical. Mood Reads connects **
 Create a `.env` file in the project root with your Supabase credentials (the app reads these via Nuxt config):
 
 - `SUPABASE_URL` — your Supabase project URL  
-- `SUPABASE_KEY` — your Supabase anon (public) key  
+- `SUPABASE_KEY` — your Supabase anon (public) key
+- `GOOGLE_BOOKS_API_KEY` - your Google Books api key
 
 Never commit real secrets; keep `.env` out of version control.
 
